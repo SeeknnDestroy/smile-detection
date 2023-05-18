@@ -2,10 +2,30 @@
 <html>
   <head>
     <title>Smile Detection</title>
+    <style>
+      #video, canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0;
+        margin: 0;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
   </head>
   <body>
     <h1>Smile Detection</h1>
     <video id="video" width="720" height="560" autoplay muted></video>
+    <canvas id="canvas"></canvas>
     <p><span id="smile-counter">Smiles: 0</span></p>
 
     <!-- Load faceapi.js -->
