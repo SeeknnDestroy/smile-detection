@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Smile Detection</title>
+  </head>
+  <body>
+    <h1>Smile Detection</h1>
+    <video id="video" width="720" height="560" autoplay muted></video>
+    <p><span id="smile-counter">Smiles: 0</span></p>
+
+    <!-- Load faceapi.js -->
+    <script src="face-api.min.js"></script>
+
+    <!-- Load the smile detection script -->
+    <script src="smile-detection.js"></script>
+
+    <!-- Start the smile detection -->
+    <script>
+      startSmileDetection()
+    </script>
+  </body>
+</html>
