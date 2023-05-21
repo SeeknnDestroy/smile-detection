@@ -34,10 +34,7 @@ Contributions are welcome and greatly appreciated! For detailed instructions on 
 
 This project is licensed under the MIT license. For more information, please refer to the `LICENSE` file in the repository.
 
-## Contact Information
-
-Should you have any questions, feedback, or suggestions, please reach out by creating an issue in the GitHub repository or via email at seeknndestroy@example.com.
 
 ## Closing Notes
 
-I developed this application to explore and showcase my skills in real-time image processing, machine learning, and front-end development. As an enthusiast of technology and its potential to bring positivity, creating a tool that encourages smiles was an exciting journey. I believe this project is a testament to the potential of combining simple user interfaces with powerful machine learning libraries to create an engaging user experience. Thank you for checking out my project!
+ As an enthusiast of technology and its potential to bring positivity, creating a tool that encourages smiles was an exciting journey. I believe this project is a testament to the potential of combining simple user interfaces with powerful machine learning libraries to create an engaging user experience. Thank you for checking out my project!
