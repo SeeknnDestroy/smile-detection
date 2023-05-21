@@ -23,8 +23,8 @@ async function startSmileDetection() {
     video.addEventListener("play", () => {
       // Create a canvas element that matches the size of the video element
       const canvas = faceapi.createCanvasFromMedia(video);
-      // Append the canvas element to the document body
-      document.body.append(canvas);
+      // Insert the canvas element after the video element
+      document.body.insertBefore(canvas, document.getElementById("video").nextSibling);
       // Display the canvas element above the video element
       const displaySize = { width: video.width, height: video.height };
       faceapi.matchDimensions(canvas, displaySize);
