@@ -26,9 +26,8 @@
     <h1>Smile Detection</h1>
     <video id="video" width="720" height="560" autoplay muted></video>
     <canvas id="canvas"></canvas>
-    <p><span id="smile-counter">Smiles: 0</span></p>
-    <p>Your video feed is being processed in real-time to detect smiles. No data is being stored or sent to any servers.</p>
-    <button id="start-button">Start Smile Detection</button>
+    <p><span id="smile-counter-1">Person 1 Smiles: 0</span></p>
+    <p><span id="smile-counter-2">Person 2 Smiles: 0</span></p>
 
     <!-- Load faceapi.js -->
     <script src="face-api.min.js"></script>
@@ -36,5 +35,9 @@
     <!-- Load the smile detection script -->
     <script src="smile-detection.js"></script>
 
+    <!-- Start the smile detection -->
+    <script>
+      startSmileDetection()
+    </script>
   </body>
 </html>
