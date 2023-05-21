@@ -93,6 +93,3 @@ async function startSmileDetection() {
     // Display an error message to the user
   }
 }
-
-// Add event listener to the start button
-document.getElementById('start-button').addEventListener('click', startSmileDetection);
