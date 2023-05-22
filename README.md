@@ -26,6 +26,20 @@ The usage of the application is straightforward. After opening the `index.html` 
 2. You will see your video feed on the screen along with two smile counters (one for each person).
 3. Start smiling, and the application will detect your smiles in real-time and increment the corresponding counter.
 
+## Smile Detection Process
+
+Here's a diagram of how the application works:
+
+![Smile Detection Process](project_diagram.svg)
+
+The smile detection process involves the following steps:
+
+- The process starts with the video feed from the webcam.
+- The face detection model identifies the location and size of faces in the video feed.
+- The facial expression recognition model identifies the expressions of the detected faces.
+- The smile counting algorithm counts the number of times a 'happy' expression (or smile) is detected for each individual.
+- The smile counter is updated correspondingly.
+
 ## Contributing
 
 Contributions are welcome and greatly appreciated! For detailed instructions on how to contribute, please refer to the `CONTRIBUTING.md` file in the repository.
