@@ -31,6 +31,13 @@
         background-color: white;
         border: 1px solid black;
       }
+      
+      #smile-counters {
+          position: absolute;
+          bottom: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+      }
     </style>
   </head>
   <body>
@@ -44,13 +51,15 @@
       id="canvas"
       aria-label="Video stream with face detection bounding boxes"
     ></canvas>
-    <p><span id="smile-counter-1">Person 1 Smiles: 0</span></p>
-    <p><span id="smile-counter-2">Person 2 Smiles: 0</span></p>
+    
+    <div id="smile-counters">
+      <p><span id="smile-counter-1">Person 1 Smiles: 0</span></p>
+      <p><span id="smile-counter-2">Person 2 Smiles: 0</span></p>
+    </div>
 
-    <!-- Add control buttons -->
+    <!-- Add a start button -->
     <button id="start-button">Start</button>
-    <button id="stop-button">Stop</button>
-    <button id="reset-button">Reset</button>
+    <button id="restart-button">Restart</button>
 
     <!-- Load faceapi.js -->
     <script src="face-api.min.js"></script>
