@@ -1,8 +1,8 @@
-# Real-Time Smile Detection Web App
+# Smile Detection Game
 
 ## Description
 
-The Real-Time Smile Detection Web App is a cutting-edge application that leverages machine learning and real-time video to count smiles from two individuals independently. Powered by the face-api.js library, the application employs facial expression analysis to determine when a person is smiling and updates the smile counter correspondingly.
+Smile Detection Game is a cutting-edge application that leverages machine learning and real-time video to count smiles from two individuals independently. Powered by the face-api.js library, the application employs facial expression analysis to determine when a person is smiling and updates the smile counter correspondingly. The game lasts for 10 seconds and the winner is the person who smiles the most during that time.
 
 ## Live Demo
 
@@ -18,13 +18,21 @@ To get the application running locally on your machine, follow these steps:
 
 Please note that the application requires a webcam to function correctly.
 
-## Usage
+## How to Play
 
 The usage of the application is straightforward. After opening the `index.html` file in your browser:
 
 1. Allow the application to access your webcam.
 2. You will see your video feed on the screen along with two smile counters (one for each person).
-3. Start smiling, and the application will detect your smiles in real-time and increment the corresponding counter.
+3. Click the "Start" button to start the game.
+4. Smile as much as you can for 10 seconds.
+5. After 10 seconds, a pop-up will appear displaying the winner.
+6. Click the "Play Again" button to play again.
+
+## Game Restrictions
+
+- If the game has already started, users can only press the "Restart" button to restart the game.
+- If the game has already ended, users can only press the "Play Again" button to play again.
 
 ## Smile Detection Process
 
