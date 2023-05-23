@@ -1,5 +1,10 @@
-// Get the video element
+// Store references to DOM elements
 const video = document.getElementById("video");
+const popup = document.querySelector("#popup");
+const winnerElement = document.querySelector("#winner");
+const playAgainButton = document.querySelector("#play-again");
+const smileCounterElement1 = document.querySelector("#smile-counter-1");
+const smileCounterElement2 = document.querySelector("#smile-counter-2");
 
 // Initialize the smile counters
 const MIN_CONSECUTIVE_FRAMES = 3;
@@ -9,17 +14,45 @@ let consecutiveSmiles1 = 0;
 let consecutiveSmiles2 = 0;
 let isSmiling1 = false;
 let isSmiling2 = false;
-// Store references to DOM elements
-const smileCounterElement1 = document.querySelector("#smile-counter-1");
-const smileCounterElement2 = document.querySelector("#smile-counter-2");
-
 // Add a variable to keep track of whether the setInterval function has been called
 let intervalStarted = false;
+// Add a variable to keep track of whether the game is over
+let gameOver = false;
+// Add a startGame function
+function startGame() {
+  // Reset the game state
+  smileCounter1 = 0;
+  smileCounter2 = 0;
+  gameOver = false;
+  // Update the text content of the smileCounterElement1 and smileCounterElement2 elements
+  smileCounterElement1.textContent = `Person 1 Smiles: ${smileCounter1}`;
+  smileCounterElement2.textContent = `Person 2 Smiles: ${smileCounter2}`;
+  // Hide the pop-up
+  popup.style.display = "none";
+
+  // Add a setTimeout function that runs after 10 seconds
+  setTimeout(() => {
+    // Display the pop-up
+    popup.style.display = "block";
+    // Determine the winner
+    let winner;
+    if (smileCounter1 > smileCounter2) {
+      winner = "Person 1";
+    } else if (smileCounter2 > smileCounter1) {
+      winner = "Person 2";
+    } else {
+      winner = "Tie";
+    }
+    // Update the text content of the winnerElement
+    winnerElement.textContent = `Winner: ${winner}`;
+    // Set the gameOver variable to true
+    gameOver = true;
+  }, 10000);
+}
 
 async function startSmileDetection() {
   try {
     // Load the models
-    // await faceapi.nets.tinyFaceDetector.loadFromUri('./weights')
     await faceapi.nets.ssdMobilenetv1.loadFromUri("./weights");
     await faceapi.nets.faceLandmark68Net.loadFromUri("./weights");
     await faceapi.nets.faceExpressionNet.loadFromUri("./weights");
@@ -32,45 +65,32 @@ async function startSmileDetection() {
       })
       .catch((error) => {
         console.error("Could not access the webcam:", error);
-        // Display an error message to the user
       });
 
     video.addEventListener("play", () => {
-      // Create a canvas element that matches the size of the video element
       const canvas = faceapi.createCanvasFromMedia(video);
-      // Append the canvas element to the document body
       document.body.append(canvas);
-      // Display the canvas element above the video element
       const displaySize = { width: video.width, height: video.height };
       faceapi.matchDimensions(canvas, displaySize);
-      // Detect faces and their expressions in real-time
 
-      // Add a check before calling the setInterval function to make sure it is only called once
       if (!intervalStarted) {
         intervalStarted = true;
         setInterval(async () => {
-          // Check if the video is playing before performing face detection
           if (!video.paused && !video.ended) {
-            // const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions()
             const detections = await faceapi
               .detectAllFaces(video, new faceapi.SsdMobilenetv1Options())
               .withFaceLandmarks()
               .withFaceExpressions();
-            // Resize the detected boxes to match the video element
             const resizedDetections = faceapi.resizeResults(
               detections,
               displaySize
             );
-            // Clear the canvas
             canvas
               .getContext("2d")
               .clearRect(0, 0, canvas.width, canvas.height);
-            // Draw the bounding boxes on the canvas
             faceapi.draw.drawDetections(canvas, resizedDetections);
-            // Draw the face expressions on the canvas
             faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
 
-            // Count the number of smiles for each person
             if (resizedDetections.length >= 1) {
               if (resizedDetections[0].expressions.happy > 0.7) {
                 consecutiveSmiles1++;
@@ -86,7 +106,6 @@ async function startSmileDetection() {
                 isSmiling1 = false;
                 consecutiveSmiles1 = 0;
               }
-              // Update the smile counter display using the stored reference to the DOM element
               smileCounterElement1.textContent = `Person 1 Smiles: ${smileCounter1}`;
             }
             if (resizedDetections.length >= 2) {
@@ -104,39 +123,34 @@ async function startSmileDetection() {
                 isSmiling2 = false;
                 consecutiveSmiles2 = 0;
               }
-              // Update the smile counter display using the stored reference to the DOM element
               smileCounterElement2.textContent = `Person 2 Smiles: ${smileCounter2}`;
             }
           }
         }, 100);
       }
+
+      // Call startGame when starting smile detection
+      startGame();
     });
   } catch (error) {
     console.error("An error occurred:", error);
-    // Display an error message to the user
   }
 }
 
-// Add event listener to the start button
 document
   .getElementById("start-button")
   .addEventListener("click", startSmileDetection);
 
-// Add event listener to the stop button
 document.getElementById("stop-button").addEventListener("click", () => {
-  // Stop the video stream
   video.pause();
-  // Clear the canvas
-  const canvas = document.querySelector("canvas");
-  canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
 });
 
-// Add event listener to the reset button
 document.getElementById("reset-button").addEventListener("click", () => {
-  // Reset the smile counters
   smileCounter1 = 0;
   smileCounter2 = 0;
-  // Update the smile counter display
   smileCounterElement1.textContent = `Person 1 Smiles: ${smileCounter1}`;
   smileCounterElement2.textContent = `Person 2 Smiles: ${smileCounter2}`;
 });
+
+// Call startGame when playAgainButton is clicked
+playAgainButton.addEventListener("click", startGame);
