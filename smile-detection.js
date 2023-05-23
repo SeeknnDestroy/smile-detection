@@ -20,7 +20,7 @@ async function startSmileDetection() {
       });
 
     // Initialize the smile counters
-    const MIN_CONSECUTIVE_FRAMES = 10;
+    const MIN_CONSECUTIVE_FRAMES = 3;
     let smileCounter1 = 0
     let smileCounter2 = 0
     let consecutiveSmiles1 = 0;
