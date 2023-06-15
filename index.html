@@ -2,74 +2,42 @@
 <html>
   <head>
     <title>Smile Detection</title>
-    <style>
-      #video,
-      canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        padding: 0;
-        margin: 0;
-      }
-
-      body {
-        margin: 0;
-        padding: 0;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      #popup {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 20px;
-        background-color: white;
-        border: 1px solid black;
-      }
-      
-      #smile-counters {
-          position: absolute;
-          bottom: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-      }
-    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
   </head>
   <body>
-    <h1>Smile Detection</h1>
-    <video id="video" width="720" height="560" autoplay muted></video>
-    <div id="popup" style="display: none;">
-      <p id="winner"></p>
-      <button id="play-again">Play Again</button>
+    <div class="container">
+      <div class="d-flex justify-content-center mt-4">
+        <button id="start-button" class="btn btn-primary mr-2">Start</button>
+        <button id="restart-button" class="btn btn-warning" disabled>Restart</button>
+      </div>
+      <div class="d-flex justify-content-center position-relative mt-4" style="height: 560px;">
+        <video id="video" width="720" height="560" autoplay muted class="position-absolute"></video>
+        <canvas id="canvas" class="position-absolute"></canvas>
+      </div>
+      <div id="progress" class="progress mt-4">
+        <div id="progress-bar" class="progress-bar" style="width: 0;"></div>
+      </div>
+      <div id="smile-counters" class="d-flex justify-content-around mt-4">
+        <h5><span id="smile-counter-1">Person 1 Smiles: 0</span></h5>
+        <h5><span id="smile-counter-2">Person 2 Smiles: 0</span></h5>
+      </div>
     </div>
-    <canvas
-      id="canvas"
-      aria-label="Video stream with face detection bounding boxes"
-    ></canvas>
-    
-    <div id="smile-counters">
-      <p><span id="smile-counter-1">Person 1 Smiles: 0</span></p>
-      <p><span id="smile-counter-2">Person 2 Smiles: 0</span></p>
+    <div id="popup" class="modal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-body">
+            <p id="winner"></p>
+            <button id="play-again" class="btn btn-success">Play Again</button>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- Add a start button -->
-    <button id="start-button">Start</button>
-    <button id="restart-button">Restart</button>
-
-    <!-- Load faceapi.js -->
     <script src="face-api.min.js"></script>
-
-    <!-- Load the smile detection script -->
     <script src="smile-detection.js"></script>
-
-    <!-- Start the smile detection -->
     <script>
-      startSmileDetection();
+      window.addEventListener('load', (event) => {
+        startSmileDetection();
+      });
     </script>
   </body>
 </html>
