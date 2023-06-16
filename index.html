@@ -1,43 +1,45 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Smile Detection</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-  </head>
-  <body>
-    <div class="container">
-      <div class="d-flex justify-content-center mt-4">
-        <button id="start-button" class="btn btn-primary mr-2">Start</button>
-        <button id="restart-button" class="btn btn-warning" disabled>Restart</button>
-      </div>
-      <div class="d-flex justify-content-center position-relative mt-4" style="height: 560px;">
-        <video id="video" width="720" height="560" autoplay muted class="position-absolute"></video>
-        <canvas id="canvas" class="position-absolute"></canvas>
-      </div>
-      <div id="progress" class="progress mt-4">
-        <div id="progress-bar" class="progress-bar" style="width: 0;"></div>
-      </div>
-      <div id="smile-counters" class="d-flex justify-content-around mt-4">
-        <h5><span id="smile-counter-1">Person 1 Smiles: 0</span></h5>
-        <h5><span id="smile-counter-2">Person 2 Smiles: 0</span></h5>
-      </div>
-    </div>
-    <div id="popup" class="modal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-body">
-            <p id="winner"></p>
-            <button id="play-again" class="btn btn-success">Play Again</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <script src="face-api.min.js"></script>
-    <script src="smile-detection.js"></script>
-    <script>
-      window.addEventListener('load', (event) => {
-        startSmileDetection();
-      });
-    </script>
-  </body>
+<!DOCTYPE html> 
+<html> 
+  <head> 
+    <title>Smile Detection</title> 
+    <link rel="stylesheet" href="./styles.css"> 
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> -->
+  </head> 
+  <body> 
+    <div class="container"> 
+      <div class="box-btn"> 
+        <button id="start-button" class="btn-header">Start</button> 
+        <button id="restart-button" class="btn-header" disabled>Restart</button> 
+      </div> 
+      <div id="multimedia" class="multimedia" > 
+        <div id="multi" class="multi"></div>
+        <video id="video"  autoplay muted class="video"></video> 
+        <div id="canvas" class="canvas"></div> 
+      </div> 
+      <div id="progress" class="progress mt-4"> 
+        <div id="progress-bar" class="progress-bar" style="width: 0;"></div> 
+      </div> 
+      <div id="smile-counters" class="box-btn"> 
+        <h5><span id="smile-counter-1" class="btn-footer">Person 1 Smiles: 0</span></h5> 
+        <h5><span id="smile-counter-2" class="btn-footer">Person 2 Smiles: 0</span></h5> 
+      </div> 
+    </div> 
+    <div id="popup" class="modal"> 
+      <div class="modal-dialog"> 
+        <div class="modal-content"> 
+          <div class="box-btn"> 
+            <div id="winner" class="winner"></div> 
+            <button id="play-again" class="btn-header">Play Again</button> 
+          </div> 
+        </div> 
+      </div> 
+    </div> 
+    <script src="face-api.min.js"></script> 
+    <script src="smile-detection.js"></script> 
+    <script> 
+      window.addEventListener('load', (event) => { 
+        startSmileDetection(); 
+      }); 
+    </script> 
+  </body> 
 </html>

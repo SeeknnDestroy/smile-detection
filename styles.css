@@ -1,0 +1,85 @@
+body {
+  background-color: rgb(32, 32, 32);
+  font-family: Helvetica, sans-serif;
+}
+.box-btn {
+  width: 98vw;
+  display: flex;
+  justify-content: center;
+}
+.btn-header {
+  background-color: rgb(254, 155, 98);
+  border: 2px solid rgb(254, 155, 98);
+  padding: 10px;
+  margin: 10px;
+  cursor: pointer;
+  border-radius: 10px;
+  width: 100px;
+  color: white;
+}
+.btn-footer {
+  background-color: rgb(10, 10, 10);
+  border: 2px solid rgb(254, 155, 98);
+  padding: 10px;
+  margin: 10px;
+
+  border-radius: 10px;
+  width: 100px;
+  color: rgb(254, 155, 98);
+}
+.btn-header:hover {
+  background-color: rgb(19, 19, 19);
+}
+.btn-header:disabled {
+  background-color: grey;
+  border: 2px solid grey;
+}
+.canvas {
+  position: absolute;
+  height: 50vh;
+  
+  top: 0;
+ z-index: 20;
+
+}
+.video {
+  background-color: rgb(10, 10, 10);
+  border: 5px solid rgb(254, 155, 98);
+  border-radius: 10px;
+  position: absolute;
+  height: 50vh;
+  width: 500px;
+  top: 0;
+}
+.multi{
+  
+  display:flex;
+  justify-content: center;
+  position:absolute;
+  height: 50vh;
+   width: 500px;
+  z-index: 20;
+  top:0;
+}
+.multimedia {
+  margin: 10vh 0;
+
+  position: relative;
+  height: 50vh;
+  display: flex;
+  justify-content: center;
+}
+.winner{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgb(254, 155, 98);
+}
+.modal{
+  position:absolute;
+  top:40vh;
+  width: 400px;
+  height: 200px;
+ 
+  z-index:30;
+}

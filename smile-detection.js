@@ -7,6 +7,7 @@ const smileCounterElement1 = document.querySelector("#smile-counter-1");
 const smileCounterElement2 = document.querySelector("#smile-counter-2");
 const startButton = document.querySelector("#start-button");
 const restartButton = document.querySelector("#restart-button");
+const multi=document.querySelector("#multi");
 
 // Smile detection variables
 const MIN_CONSECUTIVE_FRAMES = 3;
@@ -25,7 +26,7 @@ let gameStarted = false;
 function startGame() {
   // Enable the restart button
   restartButton.disabled = false;
-
+  video.style.border="5px solid red";
   // Reset game state variables
   smileCounter1 = 0;
   smileCounter2 = 0;
@@ -47,6 +48,7 @@ function startGame() {
 
   // Set a timer to end the game after 10 seconds
   timeoutID = setTimeout(() => {
+    video.style.border="5px solid rgb(254, 155, 98)";
     popup.style.display = "block";
 
     // Determine the winner
@@ -112,7 +114,9 @@ async function startSmileDetection() {
     // Process the video feed for smile detection
     video.addEventListener("play", () => {
       const canvas = faceapi.createCanvasFromMedia(video);
-      document.body.append(canvas);
+      canvas.style.offsetLeft=video.offsetLeft;
+      
+      multi.append(canvas);
       const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
       faceapi.matchDimensions(canvas, displaySize);
       
