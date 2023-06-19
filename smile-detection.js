@@ -22,6 +22,9 @@ let gameOver = false;
 let timeoutID;
 let gameStarted = false;
 
+
+playAgainButton.style.display = "none";
+
 // Function to start the smile detection game
 function startGame() {
   // Enable the restart button
@@ -35,7 +38,7 @@ function startGame() {
   // Update the smile counters display
   smileCounterElement1.textContent = `Person 1 Smiles: ${smileCounter1}`;
   smileCounterElement2.textContent = `Person 2 Smiles: ${smileCounter2}`;
-
+  
   // Hide popup and play again button
   popup.style.display = "none";
   playAgainButton.style.display = "none";
