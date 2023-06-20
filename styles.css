@@ -37,10 +37,9 @@ body {
 .canvas {
   position: absolute;
   height: 50vh;
-  
-  top: 0;
- z-index: 20;
 
+  top: 0;
+  z-index: 20;
 }
 .video {
   background-color: rgb(10, 10, 10);
@@ -51,15 +50,14 @@ body {
   width: 500px;
   top: 0;
 }
-.multi{
-  
-  display:flex;
+.multi {
+  display: flex;
   justify-content: center;
-  position:absolute;
+  align-items: center;
+  position: relative;
   height: 50vh;
-   width: 500px;
-  z-index: 20;
-  top:0;
+  width: 500px;
+  top: 0;
 }
 .multimedia {
   margin: 10vh 0;
@@ -69,17 +67,17 @@ body {
   display: flex;
   justify-content: center;
 }
-.winner{
+.winner {
   display: flex;
   justify-content: center;
   align-items: center;
   color: rgb(254, 155, 98);
 }
-.modal{
-  position:absolute;
-  top:40vh;
+.modal {
+  position: absolute;
+  top: 40vh;
   width: 400px;
   height: 200px;
- 
-  z-index:30;
+
+  z-index: 30;
 }

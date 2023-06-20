@@ -117,11 +117,16 @@ async function startSmileDetection() {
     // Process the video feed for smile detection
     video.addEventListener("play", () => {
       const canvas = faceapi.createCanvasFromMedia(video);
-      canvas.style.offsetLeft=video.offsetLeft;
+      document.getElementById('multi').append(canvas);
+
+      // Set canvas position to absolute
+      canvas.style.position = 'absolute';
       
-      multi.append(canvas);
       const displaySize = { width: video.offsetWidth, height: video.offsetHeight };
       faceapi.matchDimensions(canvas, displaySize);
+      
+      // Setting zIndex to ensure canvas is above the video
+      canvas.style.zIndex = 1;
       
       if (!intervalStarted) {
         intervalStarted = true;
