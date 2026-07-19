@@ -1,4 +1,11 @@
 import { FaceApiSmileDetector } from "./faceApiDetector.js";
+import {
+  getStreamDeviceId,
+  listCameras,
+  openCamera,
+  openCameraByDeviceId,
+  stopStream,
+} from "./camera.js";
 import { APP_CONFIG, APP_STATES } from "./config.js";
 import {
   createErrorState,
@@ -12,7 +19,7 @@ import { createTrackerState, updateTracker } from "./smileTracker.js";
 import { createUi } from "./ui.js";
 
 class SmileDetectionApp {
-  constructor({documentRef = document, windowRef = window, faceapi, cameraIndex = null,}) {
+  constructor({ documentRef = document, windowRef = window, faceapi, cameraIndex = null }) {
     this.document = documentRef;
     this.window = windowRef;
     this.faceapi = faceapi;
@@ -30,60 +37,6 @@ class SmileDetectionApp {
     this.disposed = false;
   }
 
-  async openCamera() {
-    const mediaDevices = this.window.navigator.mediaDevices;
-    const defaultStream = await mediaDevices.getUserMedia({
-      audio: false,
-      video: {
-        facingMode: "user",
-        width: {
-          ideal: 1280,
-        },
-        height: {
-          ideal: 720,
-        },
-      },
-    });
-
-    if (this.cameraIndex === null) {
-      return defaultStream;
-    }
-
-    try {
-      const devices = await mediaDevices.enumerateDevices();
-      const cameras = devices.filter((device) => device.kind === "videoinput");
-      const selectedCamera =
-        Number.isInteger(this.cameraIndex) && this.cameraIndex >= 0
-          ? cameras[this.cameraIndex]
-          : null;
-
-      if (!selectedCamera) {
-        return defaultStream;
-      }
-
-      const selectedStream = await mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          deviceId: {
-            exact: selectedCamera.deviceId,
-          },
-          width: {
-            ideal: 1280,
-          },
-          height: {
-            ideal: 720,
-          },
-        },
-      });
-
-      defaultStream.getTracks().forEach((track) => track.stop());
-
-      return selectedStream;
-    } catch {
-      return defaultStream;
-    }
-  }
-
   async init() {
     this.bindEvents();
     this.ui.render(this.state);
@@ -94,7 +47,9 @@ class SmileDetectionApp {
       }
 
       await this.detector.loadModels();
-      this.stream = await this.openCamera();
+      this.stream = await openCamera(this.window.navigator.mediaDevices, {
+        cameraIndex: this.cameraIndex,
+      });
       this.video.srcObject = this.stream;
       await this.waitForVideo();
 
@@ -102,6 +57,7 @@ class SmileDetectionApp {
       this.ui.setProgress(0);
       this.ui.closeResult();
       this.ui.render(this.state);
+      await this.refreshCameraOptions();
     } catch (error) {
       this.handleFatalError(error);
     }
@@ -117,9 +73,69 @@ class SmileDetectionApp {
     this.ui.elements.playAgainButton.addEventListener("click", () => {
       this.beginRound();
     });
+    this.ui.elements.cameraSelect.addEventListener("change", (event) => {
+      void this.switchCamera(event.target.value);
+    });
     this.window.addEventListener("beforeunload", () => {
       this.dispose();
     });
+  }
+
+  async refreshCameraOptions() {
+    try {
+      const cameras = await listCameras(this.window.navigator.mediaDevices);
+      this.ui.setCameraOptions(cameras, getStreamDeviceId(this.stream));
+    } catch {
+      this.ui.setCameraOptions([], "");
+    }
+  }
+
+  async switchCamera(deviceId) {
+    if (
+      this.disposed ||
+      this.state.status === APP_STATES.LOADING ||
+      this.state.status === APP_STATES.RUNNING ||
+      this.state.status === APP_STATES.ERROR ||
+      !deviceId ||
+      deviceId === getStreamDeviceId(this.stream)
+    ) {
+      return;
+    }
+
+    const previousStream = this.stream;
+    let nextStream = null;
+
+    this.ui.setCameraBusy(true);
+    this.ui.setRuntimeStatus("Switching camera...");
+
+    try {
+      nextStream = await openCameraByDeviceId(this.window.navigator.mediaDevices, deviceId);
+      this.video.srcObject = nextStream;
+      await this.waitForVideo();
+
+      this.stream = nextStream;
+      stopStream(previousStream);
+      await this.refreshCameraOptions();
+      this.ui.render(this.state);
+    } catch (error) {
+      stopStream(nextStream);
+      this.video.srcObject = previousStream;
+      this.ui.selectCamera(getStreamDeviceId(previousStream));
+
+      try {
+        await this.video.play();
+      } catch {
+        // The existing stream remains attached; a later user gesture can resume playback.
+      }
+
+      const message =
+        error?.name === "NotAllowedError"
+          ? "Camera access was denied. Keep using the current camera or update browser permissions."
+          : "That camera could not be opened. The current camera is still active.";
+      this.ui.setRuntimeStatus(message, "error");
+    } finally {
+      this.ui.setCameraBusy(false);
+    }
   }
 
   async waitForVideo() {
@@ -263,7 +279,7 @@ class SmileDetectionApp {
     this.detector.clear(this.overlay);
 
     if (this.stream) {
-      this.stream.getTracks().forEach((track) => track.stop());
+      stopStream(this.stream);
     }
   }
 }

@@ -16,6 +16,7 @@ Live demo: [seeknndestroy.github.io/smile-detection](https://seeknndestroy.githu
 
 - loads face detection, landmark, and expression models from the local `weights/` directory
 - opens the user's webcam in the browser
+- lets the user choose among available cameras before starting a round
 - tracks two on-screen player lanes from left to right
 - counts smile onsets instead of incrementing on every positive frame
 - declares the winner after a 10-second round
@@ -53,6 +54,7 @@ There is no production build pipeline. `index.html` is the entrypoint for both l
 ## Runtime Notes
 
 - The current detector stack uses `face-api.js` and local model weights already checked into the repository.
+- Camera switching is available before and between rounds, and is disabled while a round is running.
 - Player identity is based on screen position within a round, not biometric identity.
 - The tracker assumes players stay roughly in their left/right lanes during the round.
 - If more than two faces appear, the app uses the two leftmost detected lanes.

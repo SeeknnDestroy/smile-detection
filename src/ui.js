@@ -7,6 +7,7 @@ export function createUi(documentRef = document) {
     startButton: documentRef.getElementById("start-button"),
     restartButton: documentRef.getElementById("restart-button"),
     playAgainButton: documentRef.getElementById("play-again"),
+    cameraSelect: documentRef.getElementById("camera-select"),
     progressBar: documentRef.getElementById("progress-bar"),
     counters: [
       documentRef.getElementById("smile-counter-1"),
@@ -16,6 +17,15 @@ export function createUi(documentRef = document) {
     winner: documentRef.getElementById("winner"),
     resultSummary: documentRef.getElementById("result-summary"),
   };
+  let currentState = APP_STATES.LOADING;
+  let cameraCount = 0;
+  let cameraBusy = false;
+
+  function updateCameraControl() {
+    const canSelectCamera =
+      currentState === APP_STATES.READY || currentState === APP_STATES.FINISHED;
+    elements.cameraSelect.disabled = cameraBusy || cameraCount < 2 || !canSelectCamera;
+  }
 
   function setState(state, message, tone = "info") {
     elements.app.dataset.state = state;
@@ -36,11 +46,38 @@ export function createUi(documentRef = document) {
   }
 
   function setControls(state) {
+    currentState = state;
     const canStart = state === APP_STATES.READY;
     const canRestart = state === APP_STATES.RUNNING;
 
     elements.startButton.disabled = !canStart;
     elements.restartButton.disabled = !canRestart;
+    updateCameraControl();
+  }
+
+  function setCameraOptions(cameras, activeDeviceId) {
+    elements.cameraSelect.replaceChildren();
+    cameraCount = cameras.length;
+
+    if (cameras.length === 0) {
+      const option = documentRef.createElement("option");
+      option.textContent = "Camera selection unavailable";
+      option.value = "";
+      elements.cameraSelect.append(option);
+      updateCameraControl();
+      return;
+    }
+
+    cameras.forEach((camera, index) => {
+      const option = documentRef.createElement("option");
+      option.value = camera.deviceId;
+      option.textContent = camera.label || `Camera ${index + 1}`;
+      elements.cameraSelect.append(option);
+    });
+
+    const hasActiveCamera = cameras.some((camera) => camera.deviceId === activeDeviceId);
+    elements.cameraSelect.value = hasActiveCamera ? activeDeviceId : cameras[0].deviceId;
+    updateCameraControl();
   }
 
   function openResult(winner, scores) {
@@ -83,6 +120,14 @@ export function createUi(documentRef = document) {
     },
     setScores,
     setProgress,
+    setCameraOptions,
+    selectCamera(deviceId) {
+      elements.cameraSelect.value = deviceId;
+    },
+    setCameraBusy(isBusy) {
+      cameraBusy = isBusy;
+      updateCameraControl();
+    },
     setRuntimeStatus(message, tone = "info") {
       elements.status.dataset.tone = tone;
       elements.status.textContent = message;
