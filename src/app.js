@@ -12,10 +12,11 @@ import { createTrackerState, updateTracker } from "./smileTracker.js";
 import { createUi } from "./ui.js";
 
 class SmileDetectionApp {
-  constructor({ documentRef = document, windowRef = window, faceapi }) {
+  constructor({documentRef = document, windowRef = window, faceapi, cameraIndex = null,}) {
     this.document = documentRef;
     this.window = windowRef;
     this.faceapi = faceapi;
+    this.cameraIndex = cameraIndex;
     this.ui = createUi(documentRef);
     this.video = documentRef.getElementById("video");
     this.overlay = documentRef.getElementById("overlay");
@@ -29,6 +30,60 @@ class SmileDetectionApp {
     this.disposed = false;
   }
 
+  async openCamera() {
+    const mediaDevices = this.window.navigator.mediaDevices;
+    const defaultStream = await mediaDevices.getUserMedia({
+      audio: false,
+      video: {
+        facingMode: "user",
+        width: {
+          ideal: 1280,
+        },
+        height: {
+          ideal: 720,
+        },
+      },
+    });
+
+    if (this.cameraIndex === null) {
+      return defaultStream;
+    }
+
+    try {
+      const devices = await mediaDevices.enumerateDevices();
+      const cameras = devices.filter((device) => device.kind === "videoinput");
+      const selectedCamera =
+        Number.isInteger(this.cameraIndex) && this.cameraIndex >= 0
+          ? cameras[this.cameraIndex]
+          : null;
+
+      if (!selectedCamera) {
+        return defaultStream;
+      }
+
+      const selectedStream = await mediaDevices.getUserMedia({
+        audio: false,
+        video: {
+          deviceId: {
+            exact: selectedCamera.deviceId,
+          },
+          width: {
+            ideal: 1280,
+          },
+          height: {
+            ideal: 720,
+          },
+        },
+      });
+
+      defaultStream.getTracks().forEach((track) => track.stop());
+
+      return selectedStream;
+    } catch {
+      return defaultStream;
+    }
+  }
+
   async init() {
     this.bindEvents();
     this.ui.render(this.state);
@@ -39,12 +94,7 @@ class SmileDetectionApp {
       }
 
       await this.detector.loadModels();
-      this.stream = await this.window.navigator.mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          facingMode: "user",
-        },
-      });
+      this.stream = await this.openCamera();
       this.video.srcObject = this.stream;
       await this.waitForVideo();
 
