@@ -17,6 +17,13 @@
             lanes during a 10-second round.
           </p>
         </div>
+        <div class="camera-control">
+          <label for="camera-select">Camera</label>
+          <select id="camera-select" disabled>
+            <option value="">Finding cameras...</option>
+          </select>
+          <p>Choose a camera before starting a round.</p>
+        </div>
         <div class="actions">
           <button id="start-button" class="button button-primary" disabled>Start</button>
           <button id="restart-button" class="button button-secondary" disabled>Restart</button>
@@ -57,7 +64,10 @@
         <p class="eyebrow">Round complete</p>
         <h2 id="winner" class="winner">Winner</h2>
         <p id="result-summary" class="result-summary"></p>
-        <button id="play-again" class="button button-primary">Play Again</button>
+        <div class="modal-actions">
+          <button id="change-camera" class="button button-secondary">Change Camera</button>
+          <button id="play-again" class="button button-primary">Play Again</button>
+        </div>
       </div>
     </div>
 

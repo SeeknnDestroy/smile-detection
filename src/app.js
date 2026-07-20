@@ -1,4 +1,11 @@
 import { FaceApiSmileDetector } from "./faceApiDetector.js";
+import {
+  getStreamDeviceId,
+  listCameras,
+  openCamera,
+  openCameraByDeviceIdWhenEligible,
+  stopStream,
+} from "./camera.js";
 import { APP_CONFIG, APP_STATES } from "./config.js";
 import {
   createErrorState,
@@ -12,7 +19,7 @@ import { createTrackerState, updateTracker } from "./smileTracker.js";
 import { createUi } from "./ui.js";
 
 class SmileDetectionApp {
-  constructor({documentRef = document, windowRef = window, faceapi, cameraIndex = null,}) {
+  constructor({ documentRef = document, windowRef = window, faceapi, cameraIndex = null }) {
     this.document = documentRef;
     this.window = windowRef;
     this.faceapi = faceapi;
@@ -24,64 +31,12 @@ class SmileDetectionApp {
     this.state = createInitialState();
     this.tracker = createTrackerState();
     this.stream = null;
+    this.pendingStream = null;
     this.loopTimerId = null;
     this.roundTimerId = null;
     this.processingFrame = false;
+    this.switchingCamera = false;
     this.disposed = false;
-  }
-
-  async openCamera() {
-    const mediaDevices = this.window.navigator.mediaDevices;
-    const defaultStream = await mediaDevices.getUserMedia({
-      audio: false,
-      video: {
-        facingMode: "user",
-        width: {
-          ideal: 1280,
-        },
-        height: {
-          ideal: 720,
-        },
-      },
-    });
-
-    if (this.cameraIndex === null) {
-      return defaultStream;
-    }
-
-    try {
-      const devices = await mediaDevices.enumerateDevices();
-      const cameras = devices.filter((device) => device.kind === "videoinput");
-      const selectedCamera =
-        Number.isInteger(this.cameraIndex) && this.cameraIndex >= 0
-          ? cameras[this.cameraIndex]
-          : null;
-
-      if (!selectedCamera) {
-        return defaultStream;
-      }
-
-      const selectedStream = await mediaDevices.getUserMedia({
-        audio: false,
-        video: {
-          deviceId: {
-            exact: selectedCamera.deviceId,
-          },
-          width: {
-            ideal: 1280,
-          },
-          height: {
-            ideal: 720,
-          },
-        },
-      });
-
-      defaultStream.getTracks().forEach((track) => track.stop());
-
-      return selectedStream;
-    } catch {
-      return defaultStream;
-    }
   }
 
   async init() {
@@ -94,7 +49,9 @@ class SmileDetectionApp {
       }
 
       await this.detector.loadModels();
-      this.stream = await this.openCamera();
+      this.stream = await openCamera(this.window.navigator.mediaDevices, {
+        cameraIndex: this.cameraIndex,
+      });
       this.video.srcObject = this.stream;
       await this.waitForVideo();
 
@@ -102,6 +59,7 @@ class SmileDetectionApp {
       this.ui.setProgress(0);
       this.ui.closeResult();
       this.ui.render(this.state);
+      await this.refreshCameraOptions();
     } catch (error) {
       this.handleFatalError(error);
     }
@@ -117,9 +75,113 @@ class SmileDetectionApp {
     this.ui.elements.playAgainButton.addEventListener("click", () => {
       this.beginRound();
     });
+    this.ui.elements.changeCameraButton.addEventListener("click", () => {
+      this.ui.closeResult();
+      this.ui.render(this.state);
+      this.ui.setRuntimeStatus("Choose a camera, then click Start for the next round.");
+    });
+    this.ui.elements.cameraSelect.addEventListener("change", (event) => {
+      void this.switchCamera(event.target.value);
+    });
     this.window.addEventListener("beforeunload", () => {
       this.dispose();
     });
+  }
+
+  async refreshCameraOptions() {
+    try {
+      const cameras = await listCameras(this.window.navigator.mediaDevices);
+      this.ui.setCameraOptions(cameras, getStreamDeviceId(this.stream));
+    } catch {
+      this.ui.setCameraOptions([], "");
+    }
+  }
+
+  async switchCamera(deviceId) {
+    if (
+      !this.isCameraSwitchEligible() ||
+      this.switchingCamera ||
+      !deviceId ||
+      deviceId === getStreamDeviceId(this.stream)
+    ) {
+      return;
+    }
+
+    const previousStream = this.stream;
+    let nextStream = null;
+
+    this.switchingCamera = true;
+    this.ui.setCameraBusy(true);
+    this.ui.setRuntimeStatus("Switching camera...");
+
+    try {
+      nextStream = await openCameraByDeviceIdWhenEligible(
+        this.window.navigator.mediaDevices,
+        deviceId,
+        () => this.isCameraSwitchEligible(),
+      );
+
+      if (!nextStream) {
+        return;
+      }
+
+      this.pendingStream = nextStream;
+      this.video.srcObject = nextStream;
+      await this.waitForVideo();
+
+      if (!this.isCameraSwitchEligible()) {
+        stopStream(nextStream);
+        this.pendingStream = null;
+
+        if (!this.disposed) {
+          await this.restoreCameraStream(previousStream);
+        }
+
+        return;
+      }
+
+      this.stream = nextStream;
+      this.pendingStream = null;
+      stopStream(previousStream);
+      await this.refreshCameraOptions();
+      this.ui.render(this.state);
+    } catch (error) {
+      stopStream(nextStream);
+      this.pendingStream = null;
+
+      if (this.disposed) {
+        return;
+      }
+
+      await this.restoreCameraStream(previousStream);
+
+      const message =
+        error?.name === "NotAllowedError"
+          ? "Camera access was denied. Keep using the current camera or update browser permissions."
+          : "That camera could not be opened. The current camera is still active.";
+      this.ui.setRuntimeStatus(message, "error");
+    } finally {
+      this.switchingCamera = false;
+      this.ui.setCameraBusy(false);
+    }
+  }
+
+  isCameraSwitchEligible() {
+    return (
+      !this.disposed &&
+      (this.state.status === APP_STATES.READY || this.state.status === APP_STATES.FINISHED)
+    );
+  }
+
+  async restoreCameraStream(stream) {
+    this.video.srcObject = stream;
+    this.ui.selectCamera(getStreamDeviceId(stream));
+
+    try {
+      await this.video.play();
+    } catch {
+      // The existing stream remains attached; a later user gesture can resume playback.
+    }
   }
 
   async waitForVideo() {
@@ -153,7 +215,12 @@ class SmileDetectionApp {
   }
 
   beginRound() {
-    if (this.disposed || this.state.status === APP_STATES.LOADING || this.state.status === APP_STATES.ERROR) {
+    if (
+      this.disposed ||
+      this.switchingCamera ||
+      this.state.status === APP_STATES.LOADING ||
+      this.state.status === APP_STATES.ERROR
+    ) {
       return;
     }
 
@@ -261,10 +328,11 @@ class SmileDetectionApp {
     this.disposed = true;
     this.clearTimers();
     this.detector.clear(this.overlay);
-
-    if (this.stream) {
-      this.stream.getTracks().forEach((track) => track.stop());
-    }
+    stopStream(this.pendingStream);
+    stopStream(this.stream);
+    this.pendingStream = null;
+    this.stream = null;
+    this.video.srcObject = null;
   }
 }
 
