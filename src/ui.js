@@ -7,6 +7,7 @@ export function createUi(documentRef = document) {
     startButton: documentRef.getElementById("start-button"),
     restartButton: documentRef.getElementById("restart-button"),
     playAgainButton: documentRef.getElementById("play-again"),
+    changeCameraButton: documentRef.getElementById("change-camera"),
     cameraSelect: documentRef.getElementById("camera-select"),
     progressBar: documentRef.getElementById("progress-bar"),
     counters: [
@@ -47,11 +48,13 @@ export function createUi(documentRef = document) {
 
   function setControls(state) {
     currentState = state;
-    const canStart = state === APP_STATES.READY;
+    const canStart = state === APP_STATES.READY || state === APP_STATES.FINISHED;
     const canRestart = state === APP_STATES.RUNNING;
 
-    elements.startButton.disabled = !canStart;
+    elements.startButton.disabled = !canStart || cameraBusy;
     elements.restartButton.disabled = !canRestart;
+    elements.playAgainButton.disabled = cameraBusy;
+    elements.changeCameraButton.disabled = cameraBusy;
     updateCameraControl();
   }
 
@@ -126,7 +129,7 @@ export function createUi(documentRef = document) {
     },
     setCameraBusy(isBusy) {
       cameraBusy = isBusy;
-      updateCameraControl();
+      setControls(currentState);
     },
     setRuntimeStatus(message, tone = "info") {
       elements.status.dataset.tone = tone;

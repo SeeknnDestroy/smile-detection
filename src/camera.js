@@ -29,6 +29,17 @@ export function openCameraByDeviceId(mediaDevices, deviceId) {
   return mediaDevices.getUserMedia(createVideoConstraints(deviceId));
 }
 
+export async function openCameraByDeviceIdWhenEligible(mediaDevices, deviceId, isEligible) {
+  const stream = await openCameraByDeviceId(mediaDevices, deviceId);
+
+  if (!isEligible()) {
+    stopStream(stream);
+    return null;
+  }
+
+  return stream;
+}
+
 export async function openCamera(mediaDevices, { cameraIndex = null } = {}) {
   const defaultStream = await mediaDevices.getUserMedia(createVideoConstraints());
 

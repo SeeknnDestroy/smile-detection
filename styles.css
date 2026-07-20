@@ -269,6 +269,15 @@ h1 {
   line-height: 1.5;
 }
 
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.modal-actions .button {
+  flex: 1;
+}
+
 @media (min-width: 980px) {
   body {
     overflow: hidden;
@@ -325,5 +334,9 @@ h1 {
 
   .button {
     width: 100%;
+  }
+
+  .modal-actions {
+    flex-direction: column;
   }
 }

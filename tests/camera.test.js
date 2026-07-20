@@ -6,6 +6,7 @@ import {
   listCameras,
   openCamera,
   openCameraByDeviceId,
+  openCameraByDeviceIdWhenEligible,
 } from "../src/camera.js";
 
 function createStream(deviceId) {
@@ -170,6 +171,30 @@ test("uses the injected mediaDevices object for direct device selection", async 
   assert.equal(receivedConstraints.video.deviceId.exact, "camera-2");
   assert.equal(receivedConstraints.video.width.ideal, 1280);
   assert.equal(receivedConstraints.video.height.ideal, 720);
+});
+
+test("stops a camera stream that becomes ineligible while the request is pending", async () => {
+  const selectedStream = createStream("camera-2");
+  let resolveRequest;
+  let eligible = true;
+  const mediaDevices = {
+    getUserMedia() {
+      return new Promise((resolve) => {
+        resolveRequest = resolve;
+      });
+    },
+  };
+
+  const pendingStream = openCameraByDeviceIdWhenEligible(
+    mediaDevices,
+    "camera-2",
+    () => eligible,
+  );
+  eligible = false;
+  resolveRequest(selectedStream);
+
+  assert.equal(await pendingStream, null);
+  assert.equal(selectedStream.track.stopped, true);
 });
 
 test("lists only video inputs and reads the active stream device id", async () => {
